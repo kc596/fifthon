@@ -16,7 +16,6 @@ def getLogger(name):
 	createLogFileDirectory()
 	logging.config.dictConfig(configuration['logs'])
 	logger = logging.getLogger(name)
-	logger.debug("logger init")
 	return logger
 
 def createLogFileDirectory():
