@@ -12,6 +12,11 @@ def loadConfiguration(configfile='config/config.yaml'):
 		configuration = config
 	return config
 
+def loadCredentials(credfile='config/credentials.yaml'):
+	with open(credfile, 'r') as cf:
+		credentials = yaml.safe_load(cf.read())
+	return credentials
+
 def getLogger(name):
 	createLogFileDirectory()
 	logging.config.dictConfig(configuration['logs'])
