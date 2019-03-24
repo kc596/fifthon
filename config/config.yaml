@@ -24,3 +24,12 @@ logs:
   root:
     level: DEBUG
     handlers: [file]
+
+webdriver:
+  wait:
+    time: 10 #seconds
+
+instagram:
+  loginUrl: https://www.instagram.com/accounts/login/
+  scrollsWithoutNewUsersLimit: 2 #numbers of scrolls without new users
+  sleepTimeAfterScroll: 1 #seconds
