@@ -18,12 +18,6 @@ class Crawler:
 		self.driver = WebDriver().getDriver()
 		self.wait = WebDriverWait(self.driver, self.config['webdriver']['wait']['time'])
 
-	def getTotalFollowers(self):
-		return len(self.followers)
-
-	def getTotalFollowings(self):
-		return len(self.followings)
-
 	def login(self):
 		try:
 			self.logger.info("Logging in to instagram with handle: "+self.credential['user'])
@@ -125,3 +119,6 @@ class Crawler:
 		closeDialogButton = self.driver.find_element_by_xpath("//*[@aria-label='Close']")
 		closeDialogButton.click()
 		self.logger.debug("Closing dialog successful")
+
+	def closeSession(self):
+		self.driver.quit()

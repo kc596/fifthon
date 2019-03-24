@@ -1,17 +1,24 @@
 from src.common.utils import *
-from Analyser import Analyser
-from Crawler import Crawler
+from src.instagram.Crawler import Crawler
 
 class Instagram:
-    def __init__(self, credential, handle):
-        self.credential = crendential   #credential used to log in
-        self.handle = bdHandler         #handle to crawl
-        self.logger = getLogger("Instagram")
-        
-        #self.crawler = Crawler(driver, crendential, handle)
-        #self.bdHandler = Database()
-        #self.dataAnalyser = Analysis()
-        
-    def printData(self):
-        self.logger.error("Instagram class")
-        return
+	def __init__(self, credential, handle):
+		self.credential = credential 	#credential used to log in
+		self.handle = handle 			#handle to crawl
+		self.logger = getLogger("Instagram")
+		self.followers  = []
+		self.followings = []
+		self.crawler = Crawler(credential, handle)
+		self.crawl()
+		#self.dbHandler = Database()
+		#self.dataAnalyser = Analysis()
+		
+	def crawl(self):
+		self.logger.info("Crawling instagram of handle: "+self.handle)
+		self.crawler.login()
+		self.crawler.getFollowers()
+		self.crawler.getFollowings()
+		self.crawler.closeSession()
+		self.followers = self.crawler.followers
+		self.followings = self.crawler.followings
+		self.logger.info("Crawling done. Retrieved: "+str(len(self.followers))+" followers and "+str(len(self.followings))+" followings")
