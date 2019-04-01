@@ -19,6 +19,10 @@ class UICrawler:
 		self.config = loadConfiguration('config/config.yaml')
 		self.driver = WebDriver().getDriver()
 		self.wait = WebDriverWait(self.driver, self.config['webdriver']['wait']['time'])
+		self.login()
+		self.getFollowingsHandleByScrollingUI()
+		self.getFollowersHandleByScrollingUI()
+		self.closeSession()
 
 	def login(self):
 		try:
@@ -27,19 +31,6 @@ class UICrawler:
 				raise Exception("Unsuccessful login.")
 		except Exception as e:
 			self.logger.exception("Login failed! Handle: "+self.credential['user'])
-
-	def getFollowersHandleByScrollingUI(self):
-		try:
-			self.logger.info("Retrieving followers of handle: "+self.handle)
-			self.driver.get(self.config['instagram']['handleBaseUrl']+self.handle)
-			self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@href, 'followers')]"))) #waiting for page to load
-			self.openDialog('followers')
-			self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@role='dialog' and contains(., 'Followers')]//ul//li//div[text()]")))
-			self.followers = self.getHandleOfUsersByScrollingUI('Followers')
-			self.closeDialog()
-			self.logger.info("Retrieved "+str(len(self.followers))+" followers of handle: "+self.handle)
-		except Exception as e:
-			self.logger.exception("Problem in getting followers of handle: "+self.handle)
 
 	def getFollowingsHandleByScrollingUI(self):
 		try:
@@ -53,6 +44,19 @@ class UICrawler:
 			self.logger.info("Retrieved "+str(len(self.followings))+" followings of handle: "+self.handle)
 		except Exception as e:
 			self.logger.exception("Problem in getting followings of handle: "+self.handle)
+
+	def getFollowersHandleByScrollingUI(self):
+		try:
+			self.logger.info("Retrieving followers of handle: "+self.handle)
+			self.driver.get(self.config['instagram']['handleBaseUrl']+self.handle)
+			self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@href, 'followers')]"))) #waiting for page to load
+			self.openDialog('followers')
+			self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@role='dialog' and contains(., 'Followers')]//ul//li//div[text()]")))
+			self.followers = self.getHandleOfUsersByScrollingUI('Followers')
+			self.closeDialog()
+			self.logger.info("Retrieved "+str(len(self.followers))+" followers of handle: "+self.handle)
+		except Exception as e:
+			self.logger.exception("Problem in getting followers of handle: "+self.handle)
 
 	def openDialog(self, typeOfDialog):
 		self.logger.debug("Opening "+typeOfDialog+" dialog of handle: "+self.handle)
