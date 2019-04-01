@@ -31,5 +31,15 @@ webdriver:
 
 instagram:
   loginUrl: https://www.instagram.com/accounts/login/
-  scrollsWithoutNewUsersLimit: 2 #numbers of scrolls without new users
-  sleepTimeAfterScroll: 1 #seconds
+  handleBaseUrl: https://www.instagram.com/
+  scrollsWithoutNewUsersLimit: 5 #numbers of scrolls without new users
+  sleepTimeAfterScroll: 2 #seconds
+  regexToGetIdFromHtmlSource: \"has_requested_viewer\":(.)*\"id\":(.)*\"is_business_account\":.
+  api:
+    url: https://www.instagram.com/graphql/query/
+    query_hash: # TODO: scrap query_hash from javascript
+      followers: 56066f031e6239f35a904ac20c9f37d9
+      followings: c56ee0ae1f89cdbd1c89e2bc6b8f3d18
+    include_reel: false
+    fetch_mutual: false
+    first: 50
