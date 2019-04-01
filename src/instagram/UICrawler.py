@@ -5,66 +5,50 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from src.common.utils import *
 from src.common.WebDriver import WebDriver
+from src.instagram.UILogin import UILogin
 import time
 
-class Crawler:
+class UICrawler:
 	def __init__(self, credential, handle):
 		self.credential = credential
 		self.handle = handle
+		self.loggedIn = False
 		self.followers = []
 		self.followings = []
-		self.logger = getLogger("InstagramCrawler")
+		self.logger = getLogger("InstagramUICrawler")
 		self.config = loadConfiguration('config/config.yaml')
 		self.driver = WebDriver().getDriver()
 		self.wait = WebDriverWait(self.driver, self.config['webdriver']['wait']['time'])
 
 	def login(self):
 		try:
-			self.logger.info("Logging in to instagram with handle: "+self.credential['user'])
-			self.driver.get(self.config['instagram']['loginUrl'])
-			self.wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='username'][@type='text']")))
-			self.logger.debug("Presence of username field detected.")
-			userNameInput = self.driver.find_element_by_xpath("//input[@name='username'][@type='text']")
-			passwordInput = self.driver.find_element_by_xpath("//input[@name='password'][@type='password']")
-			userNameInput.send_keys(self.credential['user'])
-			passwordInput.send_keys(self.credential['password'])
-			self.driver.find_element_by_xpath("//button[@type='submit']").click()
+			self.loggedIn = UILogin(self.driver, self.credential).login()
+			if self.loggedIn==False:
+				raise Exception("Unsuccessful login.")
 		except Exception as e:
-			self.logger.exception("Fatal! Login failed.")
-			return
-		finally:
-			self.checkSuccessfulLogin()
+			self.logger.exception("Login failed! Handle: "+self.credential['user'])
 
-	def checkSuccessfulLogin(self):
-		try:
-			userNameInput = self.driver.find_element_by_xpath("//input[@name='username'][@type='text']")
-			self.wait.until(EC.staleness_of(userNameInput))
-			self.logger.info("Login successful for handle: "+self.credential['user'])
-			self.logger.debug("Page url after login: "+self.driver.current_url)
-		except Exception as e:
-			self.logger.exception("Login failed! Invalid username or password")
-
-	def getFollowers(self):
+	def getFollowersHandleByScrollingUI(self):
 		try:
 			self.logger.info("Retrieving followers of handle: "+self.handle)
-			self.driver.get("https://instagram.com/"+self.handle)
+			self.driver.get(self.config['instagram']['handleBaseUrl']+self.handle)
 			self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@href, 'followers')]"))) #waiting for page to load
 			self.openDialog('followers')
 			self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@role='dialog' and contains(., 'Followers')]//ul//li//div[text()]")))
-			self.followers = self.getListOfUsers('Followers')
+			self.followers = self.getHandleOfUsersByScrollingUI('Followers')
 			self.closeDialog()
 			self.logger.info("Retrieved "+str(len(self.followers))+" followers of handle: "+self.handle)
 		except Exception as e:
 			self.logger.exception("Problem in getting followers of handle: "+self.handle)
 
-	def getFollowings(self):
+	def getFollowingsHandleByScrollingUI(self):
 		try:
 			self.logger.info("Retrieving following of handle: "+self.handle)
-			self.driver.get("https://instagram.com/"+self.handle)
+			self.driver.get(self.config['instagram']['handleBaseUrl']+self.handle)
 			self.wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@href, 'following')]"))) #waiting for page to load
 			self.openDialog('following')
 			self.wait.until(EC.presence_of_element_located((By.XPATH, "//div[@role='dialog' and contains(., 'Following')]//ul//li//div[text()]")))
-			self.followings = self.getListOfUsers('Following')
+			self.followings = self.getHandleOfUsersByScrollingUI('Following')
 			self.closeDialog()
 			self.logger.info("Retrieved "+str(len(self.followings))+" followings of handle: "+self.handle)
 		except Exception as e:
@@ -87,7 +71,7 @@ class Crawler:
 	Instagram has throttling enabled. Rate varies from account to account. Generally near 200 requests per hour.
 	Number of followers/following shown on profile is not always accurate. That's why we stop when we can't scroll more.
 	'''
-	def getListOfUsers(self, dialogType):
+	def getHandleOfUsersByScrollingUI(self, dialogType):
 		dialog = self.driver.find_element_by_xpath("//div[@role='dialog' and contains(., '{}')]".format(dialogType))
 		userCount = 0
 		previousCount = 0
@@ -100,7 +84,7 @@ class Crawler:
 			else:
 				numberOfScrollsWithoutNewUsers = 0
 			previousCount = userCount
-		self.logger.info(str(userCount)+" "+dialogType+" scrolled by getListOfUsers()")
+		self.logger.info(str(userCount)+" "+dialogType+" scrolled by getHandleOfUsersByScrollingUI()")
 		userWebElements = dialog.find_elements_by_xpath(".//ul//li//a[@title]")
 		users = []
 		for user in userWebElements:
