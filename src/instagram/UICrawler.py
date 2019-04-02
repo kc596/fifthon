@@ -20,9 +20,9 @@ class UICrawler:
 		self.driver = WebDriver().getDriver()
 		self.wait = WebDriverWait(self.driver, self.config['webdriver']['wait']['time'])
 		self.login()
-		self.getFollowingsHandleByScrollingUI()
-		self.getFollowersHandleByScrollingUI()
-		self.closeSession()
+		#self.getFollowingsHandleByScrollingUI()
+		#self.getFollowersHandleByScrollingUI()
+		#self.closeSession()
 
 	def login(self):
 		try:
