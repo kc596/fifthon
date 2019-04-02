@@ -12,7 +12,7 @@ logs:
       stream: ext://sys.stdout
     file:
       class: logging.FileHandler
-      level: DEBUG
+      level: INFO
       formatter: simple
       filename: logs/app.log
       mode: a
@@ -22,7 +22,7 @@ logs:
       handlers: [console, file]
       propagate: no
   root:
-    level: DEBUG
+    level: INFO
     handlers: [file]
 
 webdriver:
@@ -43,3 +43,5 @@ instagram:
     include_reel: false
     fetch_mutual: false
     first: 50
+    sleepTimeAfterQuery: 2 #seconds
+    limit: 200 #queries per hour in a session

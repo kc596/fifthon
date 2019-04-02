@@ -1,5 +1,6 @@
 from src.common.utils import *
 from src.instagram.UICrawler import UICrawler
+from src.instagram.ApiCrawler import ApiCrawler
 
 class Instagram:
 	def __init__(self, credential, handle):
@@ -8,17 +9,15 @@ class Instagram:
 		self.logger = getLogger("Instagram")
 		self.followers  = []
 		self.followings = []
-		self.crawler = UICrawler(credential, handle)
+		self.crawler = ApiCrawler(credential, handle)
 		self.crawl()
 		#self.dbHandler = Database()
 		#self.dataAnalyser = Analysis()
 		
 	def crawl(self):
 		self.logger.info("Crawling instagram of handle: "+self.handle)
-		self.crawler.login()
-		#self.crawler.getUserIdOfLoggedInUser()
-		self.crawler.getFollowersHandleByScrollingUI()
-		self.crawler.getFollowingsHandleByScrollingUI()
+		self.crawler.getFollowingsByApi()
+		self.crawler.getFollowersByApi()
 		self.crawler.closeSession()
 		self.followers = self.crawler.followers
 		self.followings = self.crawler.followings
