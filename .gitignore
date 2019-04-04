@@ -3,3 +3,4 @@ socialnetworkenv/
 **/__pycache__/
 logs/
 *.log
+config/credentials.yaml
